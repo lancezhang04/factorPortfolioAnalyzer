@@ -3,7 +3,7 @@ import math
 from tabulate import tabulate
 
 from equity import Equity
-from constants import TARGET_REGIONAL_SPLIT, TARGET_VALUE_SPLIT, Region
+from constants import TARGET_REGIONAL_SPLIT, TARGET_VALUE_FUND_SPLIT, Region
 
 
 class Position:
@@ -22,9 +22,9 @@ class Position:
         self.target_proportion = 1.0
         self.target_proportion *= TARGET_REGIONAL_SPLIT[equity.region]
         if equity.is_value:
-            self.target_proportion *= TARGET_VALUE_SPLIT[equity.region]
+            self.target_proportion *= TARGET_VALUE_FUND_SPLIT[equity.region]
         else:
-            self.target_proportion *= 1 - TARGET_VALUE_SPLIT[equity.region]
+            self.target_proportion *= 1 - TARGET_VALUE_FUND_SPLIT[equity.region]
 
 
 class Portfolio:
@@ -112,10 +112,9 @@ class Portfolio:
         print("* No fractional shares")
 
     def balance_with_infusion(self, infusion: float) -> None:
-        # TODO: Infusion can be negative for fractional-share equities
         data = self.format_data()
         total_value = self.value + infusion
-        total_adjustment = 0.0
+        total_whole_share_error = 0.0
 
         for position in self.positions.values():
             target_value = position.target_proportion * total_value
@@ -125,7 +124,7 @@ class Portfolio:
             if not position.equity.fractional:
                 difference_shares_rounded = round(difference_shares)
                 fractional_adjustment = (difference_shares_rounded - difference_shares) * position.equity.share_price
-                total_adjustment += fractional_adjustment
+                total_whole_share_error += fractional_adjustment
 
                 position.difference = round(difference_shares_rounded * position.equity.share_price, 2)
                 position.difference_shares = round(difference_shares_rounded, 2)
@@ -134,28 +133,28 @@ class Portfolio:
                 position.difference = round(difference, 2)
                 position.difference_shares = round(difference_shares, 2)
 
-            data[position.equity]["Infusion Value"] = f"{position.difference:.2f}"
-            data[position.equity]["Infusion Shares"] = str(position.difference_shares)
-            data[position.equity]["Adjustment"] = f"{fractional_adjustment:.2f}"
+            data[position.equity]["Adjustment Value"] = f"{position.difference:.2f}"
+            data[position.equity]["Adjustment Shares"] = str(position.difference_shares)
+            data[position.equity]["Adjustment Error"] = f"{fractional_adjustment:.2f}"
 
-        # Redistribute adjustment to equities that support fractional shares
+        # Redistribute the whole share error to equities that support fractional shares
         total_fractional_proportion = sum(
             position.target_proportion for position in self.positions.values()
             if position.equity.fractional
         )
-        adjustment_cancelled = 0.0
+        whole_share_error_cancelled = 0.0
         for position in self.positions.values():
             if position.equity.fractional:
-                adjustment = -total_adjustment * (position.target_proportion / total_fractional_proportion)
-                position.difference += adjustment
+                fractional_adjustment = -total_whole_share_error * (position.target_proportion / total_fractional_proportion)
+                position.difference += fractional_adjustment
                 position.difference_shares = position.difference / position.equity.share_price
 
-                adjustment_cancelled += adjustment
-                data[position.equity]["Adjustment"] = f"{adjustment:.2f}"
-                data[position.equity]["Infusion Value"] = f"{position.difference:.2f}"
-                data[position.equity]["Infusion Shares"] = str(position.difference_shares)
+                whole_share_error_cancelled += fractional_adjustment
+                data[position.equity]["Adjustment Value"] = f"{position.difference:.2f}"
+                data[position.equity]["Adjustment Shares"] = str(position.difference_shares)
+                data[position.equity]["Adjustment Error"] = f"{fractional_adjustment:.2f}"
 
         print()
         print(tabulate(data.values(), headers='keys', tablefmt='grid', showindex=False))
-        print(f"Total adjustment: {total_adjustment:,.2f} | {adjustment_cancelled:,.2f} cancelled")
+        # print(f"Total adjustment: {total_adjustment:,.2f} | {cancelled:,.2f} cancelled")
         print(f"Total infusion: {sum(position.difference for position in self.positions.values()):,.2f}")

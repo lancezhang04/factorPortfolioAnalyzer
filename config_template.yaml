@@ -63,7 +63,7 @@ equities:
     region: Developed
     fractional: true
 
-target_value_split:
+target_fund_split:
   US: 0.37
   Developed: 0.548
   Emerging: 1.0
