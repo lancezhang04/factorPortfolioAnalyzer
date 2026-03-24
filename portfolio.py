@@ -78,7 +78,6 @@ class Portfolio:
 
     @property
     def target_profitability_tilt(self) -> float:
-        portfolio_value = self.value
         return sum(
             position.equity.profitability_tilt * position.target_proportion
             for position in self.positions.values()
