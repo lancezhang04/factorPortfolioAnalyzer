@@ -3,7 +3,10 @@ from equity import Ticker, EQUITIES
 from constants import PORTFOLIO_DATA, TARGET_REGIONAL_SPLIT
 
 current_portfolio = Portfolio([
-    Position(value=item['value'], equity=EQUITIES[Ticker[item['ticker']]])
+    Position(
+        value=item['shares'] * EQUITIES[Ticker[item['ticker']]].share_price,
+        equity=EQUITIES[Ticker[item['ticker']]]
+    )
     for item in PORTFOLIO_DATA
 ])
 

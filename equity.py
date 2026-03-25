@@ -30,12 +30,12 @@ class Equity(BaseModel):
     region: Region
 
 
-# TODO: estimate true value/size tilt based on regression (?)
+# TODO: estimate true value/size tilt based on regression
 def load_equities():
-    from constants import EQUITIES_DATA
+    from constants import EQUITIES_CONFIG
     equities = {}
     print("Loading equities...")
-    for ticker_str, data in tqdm(EQUITIES_DATA.items(), ncols=80):
+    for ticker_str, data in tqdm(EQUITIES_CONFIG.items(), ncols=80):
         if ticker_str not in Ticker.__members__:
             raise ValueError(f"Invalid ticker in config.yaml: {ticker_str}")
 
@@ -53,4 +53,4 @@ def load_equities():
     return equities
 
 
-EQUITIES = load_equities()
+EQUITIES: dict[Ticker, Equity] = load_equities()

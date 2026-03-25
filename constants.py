@@ -10,10 +10,10 @@ def load_config():
         return yaml.safe_load(f)
 
 
-def calculate_equities_split(equities_tilts: list[float], target_tilt: float) -> tuple[list[float], float]:
+def calculate_core_satellite_split(equities_tilts: list[float], target_tilt: float) -> tuple[list[float], float]:
     """
-    Calculate equities split based on target value tilt. Find the closest match if a perfect solution is not possible.
-    Returns the split for each equity and actual value tilt for the split.
+    Calculate split between core and satellite funds based on target value tilt. Find the closest match if a perfect
+    solution is not possible. Returns the split for each equity and actual value tilt for the split.
     :param equities_tilts: The value tilts of the equities to split
     :param target_tilt: The target value tilt
     :return: Equities split and actual value tilt
@@ -38,7 +38,7 @@ def calculate_equities_split(equities_tilts: list[float], target_tilt: float) ->
 
 config_data = load_config()
 
-EQUITIES_DATA = config_data["equities"]
+EQUITIES_CONFIG = config_data["equities"]
 
 
 class Region(Enum):
