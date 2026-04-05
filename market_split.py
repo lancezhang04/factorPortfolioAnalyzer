@@ -1,3 +1,7 @@
+import json
+import os
+from pathlib import Path
+
 import pandas as pd
 import requests
 import io
@@ -22,7 +26,12 @@ DEVELOPED_COUNTRIES_EX_US = developed_markets = [
 ]
 
 
-def get_global_market_split():
+CACHE_DIR = Path(".cache")
+MARKET_SPLIT_CACHE = CACHE_DIR / "market_split.json"
+
+
+def _fetch_market_split():
+    """Fetch market split from iShares ACWI ETF holdings."""
     # iShares URL for MSCI ACWI ETF daily holdings
     url = "https://www.ishares.com/us/products/239600/ishares-msci-acwi-etf/1467271812596.ajax?fileType=csv&fileName=ACWI_holdings&dataType=fund"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
@@ -52,6 +61,22 @@ def get_global_market_split():
         "Developed": round(developed_ex_us_weight / total, 4),
         "Emerging": round(emerging_weight / total, 4)
     }
+
+
+def get_global_market_split(use_cache: bool = False):
+    """Get global market split, optionally using cached data."""
+    if use_cache and MARKET_SPLIT_CACHE.exists():
+        with open(MARKET_SPLIT_CACHE, 'r') as f:
+            return json.load(f)
+
+    split = _fetch_market_split()
+
+    # Save to cache
+    CACHE_DIR.mkdir(exist_ok=True)
+    with open(MARKET_SPLIT_CACHE, 'w') as f:
+        json.dump(split, f, indent=2)
+
+    return split
 
 
 if __name__ == "__main__":

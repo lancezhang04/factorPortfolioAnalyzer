@@ -1,5 +1,7 @@
 from collections import defaultdict
 from enum import Enum
+import json
+from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 
 import yfinance as yf
@@ -24,9 +26,9 @@ class Equity(BaseModel):
     fractional: bool = True
     share_price: float
 
-    value_tilt: float
-    size_tilt: float
-    profitability_tilt: float
+    value_loading: float
+    size_loading: float
+    profitability_loading: float
     region: Region
 
 
@@ -62,16 +64,43 @@ def calculate_core_satellite_split(
     )
 
 
-# TODO: save retrieved data to cache
-def load_equities():
+CACHE_DIR = Path(".cache")
+STOCK_PRICES_CACHE = CACHE_DIR / "stock_prices.json"
+
+
+def _fetch_stock_prices(tickers: list[str]) -> dict[str, float]:
+    """Fetch stock prices from yfinance."""
+    prices = {}
+    for ticker_str in tqdm(tickers, ncols=80):
+        prices[ticker_str] = yf.Ticker(ticker_str).info["regularMarketPrice"]
+    return prices
+
+
+def get_stock_prices(tickers: list[str], use_cache: bool = False) -> dict[str, float]:
+    """Get stock prices, optionally using cached data."""
+    if use_cache and STOCK_PRICES_CACHE.exists():
+        with open(STOCK_PRICES_CACHE, 'r') as f:
+            return json.load(f)
+
+    prices = _fetch_stock_prices(tickers)
+
+    # Save to cache
+    CACHE_DIR.mkdir(exist_ok=True)
+    with open(STOCK_PRICES_CACHE, 'w') as f:
+        json.dump(prices, f, indent=2)
+
+    return prices
+
+
+def get_equities(use_cache: bool = False):
+    """Load equities with optional caching."""
     from constants import EQUITIES_CONFIG, TARGET_VALUE_LOADINGS
 
     loadings_by_region = defaultdict(dict)
     fund_proportion_in_region = dict()
 
     for ticker_str, data in EQUITIES_CONFIG.items():
-        # TODO: need to rename all "value_tilt", etc. to "value_loading"
-        loadings_by_region[Region(data["region"])][ticker_str] = data["value_tilt"]
+        loadings_by_region[Region(data["region"])][ticker_str] = data["value_loading"]
 
     for region, fund_loadings in loadings_by_region.items():
         fund_proportion_in_region.update(calculate_core_satellite_split(
@@ -79,9 +108,15 @@ def load_equities():
             target_loading=TARGET_VALUE_LOADINGS[region],
         )[0])
 
+    tickers = list(EQUITIES_CONFIG.keys())
+    if use_cache:
+        print("\033[91mWarning: Using cached stock prices\033[0m")
+    else:
+        print("Loading equities...")
+    stock_prices = get_stock_prices(tickers, use_cache=use_cache)
+
     equities = {}
-    print("Loading equities...")
-    for ticker_str, data in tqdm(EQUITIES_CONFIG.items(), ncols=80):
+    for ticker_str, data in EQUITIES_CONFIG.items():
         if ticker_str not in Ticker.__members__:
             raise ValueError(f"Invalid ticker in config.yaml: {ticker_str}")
 
@@ -89,12 +124,10 @@ def load_equities():
         equities[ticker] = Equity(
             ticker=ticker,
             fractional=data.get("fractional", True),
-            share_price=yf.Ticker(ticker_str).info["regularMarketPrice"],
-            value_tilt=data["value_tilt"],
-            size_tilt=data["size_tilt"],
-            profitability_tilt=data["profitability_tilt"],
+            share_price=stock_prices[ticker_str],
+            value_loading=data["value_loading"],
+            size_loading=data["size_loading"],
+            profitability_loading=data["profitability_loading"],
             region=Region[data["region"]],
         )
     return equities, fund_proportion_in_region
-
-EQUITIES, TARGET_FUND_PROPORTION_IN_REGION = load_equities()

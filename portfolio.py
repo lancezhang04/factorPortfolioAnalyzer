@@ -2,8 +2,8 @@ import math
 
 from tabulate import tabulate
 
-from equity import Equity, TARGET_FUND_PROPORTION_IN_REGION
-from constants import TARGET_REGIONAL_SPLIT, Region
+from equity import Equity
+from constants import Region
 
 
 class Position:
@@ -15,11 +15,11 @@ class Position:
     difference: float = None
     difference_shares: float = None
 
-    def __init__(self, equity: Equity, value: float):
+    def __init__(self, equity: Equity, value: float, target_regional_split: dict, target_fund_proportion_in_region: dict):
         self.value = value
         self.equity = equity
-        self.target_proportion = TARGET_REGIONAL_SPLIT[equity.region] * \
-            TARGET_FUND_PROPORTION_IN_REGION[equity.ticker.value]
+        self.target_proportion = target_regional_split[equity.region] * \
+            target_fund_proportion_in_region[equity.ticker.value]
 
 class Portfolio:
     positions: dict[Equity, Position]
@@ -36,7 +36,7 @@ class Portfolio:
     def value_loading(self) -> float:
         portfolio_value = self.value
         return sum(
-            position.equity.value_tilt * (position.value / portfolio_value)
+            position.equity.value_loading * (position.value / portfolio_value)
             for position in self.positions.values()
         )
 
@@ -44,7 +44,7 @@ class Portfolio:
     def size_loading(self) -> float:
         portfolio_value = self.value
         return sum(
-            position.equity.size_tilt * (position.value / portfolio_value)
+            position.equity.size_loading * (position.value / portfolio_value)
             for position in self.positions.values()
         )
 
@@ -52,28 +52,28 @@ class Portfolio:
     def profitability_loading(self) -> float:
         portfolio_value = self.value
         return sum(
-            position.equity.profitability_tilt * (position.value / portfolio_value)
+            position.equity.profitability_loading * (position.value / portfolio_value)
             for position in self.positions.values()
         )
 
     @property
     def target_value_loading(self) -> float:
         return sum(
-            position.equity.value_tilt * position.target_proportion
+            position.equity.value_loading * position.target_proportion
             for position in self.positions.values()
         )
 
     @property
     def target_size_loading(self) -> float:
         return sum(
-            position.equity.size_tilt * position.target_proportion
+            position.equity.size_loading * position.target_proportion
             for position in self.positions.values()
         )
 
     @property
     def target_profitability_loading(self) -> float:
         return sum(
-            position.equity.profitability_tilt * position.target_proportion
+            position.equity.profitability_loading * position.target_proportion
             for position in self.positions.values()
         )
 
@@ -102,7 +102,7 @@ class Portfolio:
         for pos in self.positions.values():
             data[pos.equity] = {
                 "Ticker": str(pos.equity.ticker) + ("*" if not pos.equity.fractional else ""),
-                "Est. Value Loading": f"{pos.equity.value_tilt:.2%}",
+                "Est. Value Loading": f"{pos.equity.value_loading:.2%}",
                 "Price": str(pos.equity.share_price),
                 "Shares": f"{pos.value / pos.equity.share_price:.2f}",
                 "Current Value": f"{pos.value:.2f}",
@@ -114,21 +114,50 @@ class Portfolio:
         return data
 
     def display(self) -> None:
-        # TODO: Consider adding regional composition and estimated tilt %
+        # TODO: Consider adding regional composition and estimated loading %
         data = self.format_data()
         print(f"\nPortfolio Total Value: ${self.value:,.2f}")
         print(tabulate(data.values(), headers='keys', tablefmt='grid', showindex=False))
         print("* No fractional shares")
 
     def display_loadings(self) -> None:
-        loadings_data = {
-            "HML": {"Loading": self.value_loading, "Target Loading": self.target_value_loading},
-            "SMB": {"Loading": self.size_loading, "Target Loading": self.target_size_loading},
-            "RMW": {"Loading": self.profitability_loading, "Target Loading": self.target_profitability_loading},
+        from constants import FACTOR_PREMIUMS
+
+        loadings_data = [
+            [
+                "SMB",
+                self.size_loading,
+                self.target_size_loading,
+                FACTOR_PREMIUMS["SMB"],
+                FACTOR_PREMIUMS["SMB"] * self.size_loading
+            ],
+            [
+                "HML",
+                self.value_loading,
+                self.target_value_loading,
+                FACTOR_PREMIUMS["HML"],
+                FACTOR_PREMIUMS["HML"] * self.value_loading
+            ],
+            [
+                "RMW",
+                self.profitability_loading,
+                self.target_profitability_loading,
+                FACTOR_PREMIUMS["RMW"],
+                FACTOR_PREMIUMS["RMW"] * self.profitability_loading
+            ],
             # TODO: add investment and market factors
-        }
+        ]
+
+        total_portfolio_premium = sum(row[4] for row in loadings_data)
+
         print(f"\nPortfolio Factor Loadings (Est.)")
-        print(tabulate(loadings_data.values(), headers='keys', tablefmt='grid', showindex=False))
+        print(tabulate(
+            loadings_data,
+            headers=["Factor", "Loading", "Target Loading", "Est. Premium", "Est. Portfolio Premium"],
+            tablefmt='grid',
+            floatfmt=".4f"
+        ))
+        print(f"Total Estimated Portfolio Excess Returns: {total_portfolio_premium:.2%}")
 
     def balance_with_infusion(self, infusion: float) -> None:
         data = self.format_data()

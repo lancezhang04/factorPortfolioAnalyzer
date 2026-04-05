@@ -14,44 +14,44 @@ current_portfolio:
 
 equities:
   DFUS:
-    value_tilt: 0.0
-    size_tilt: -0.02
-    profitability_tilt: 0.05
+    value_loading: 0.0
+    size_loading: -0.02
+    profitability_loading: 0.05
 
     region: US
     fractional: false
   DFAI:
-    value_tilt: 0.08
-    size_tilt: -0.18
-    profitability_tilt: 0.02
+    value_loading: 0.08
+    size_loading: -0.18
+    profitability_loading: 0.02
 
     region: Developed
     fractional: false
   AVEM:
-    value_tilt: 0.03
-    size_tilt: -0.01
-    profitability_tilt: 0.19
+    value_loading: 0.03
+    size_loading: -0.01
+    profitability_loading: 0.19
 
     region: Emerging
     fractional: true
   AVES:
-    value_tilt: 0.18
-    size_tilt: 0.32
-    profitability_tilt: 0.17
+    value_loading: 0.18
+    size_loading: 0.32
+    profitability_loading: 0.17
 
     region: Emerging
     fractional: false
   AVUV:
-    value_tilt: 0.54
-    size_tilt: 0.89
-    profitability_tilt: 0.28
+    value_loading: 0.54
+    size_loading: 0.89
+    profitability_loading: 0.28
 
     region: US
     fractional: true
   AVDV:
-    value_tilt: 0.39
-    size_tilt: 0.57
-    profitability_tilt: 0.28
+    value_loading: 0.39
+    size_loading: 0.57
+    profitability_loading: 0.28
 
     region: Developed
     fractional: true
@@ -60,3 +60,8 @@ target_value_loadings:
   US: 0.25
   Developed: 0.2
   Emerging: 0.2
+
+factor_premiums:
+  HML: 0.04  # Value premium (4% annualized)
+  SMB: 0.03  # Size premium (3% annualized)
+  RMW: 0.03  # Profitability premium (3% annualized)

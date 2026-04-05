@@ -1,22 +1,34 @@
-from portfolio import Position, Portfolio
-from equity import Ticker, EQUITIES
-from constants import PORTFOLIO_DATA, TARGET_REGIONAL_SPLIT
+import argparse
 
-current_portfolio = Portfolio([
-    Position(
-        value=item['shares'] * EQUITIES[Ticker[item['ticker']]].share_price,
-        equity=EQUITIES[Ticker[item['ticker']]]
-    )
-    for item in PORTFOLIO_DATA
-])
+from portfolio import Position, Portfolio
+from equity import Ticker, get_equities
+from constants import get_portfolio_data, get_target_regional_split
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Portfolio Rebalancer")
+    parser.add_argument(
+        "--use_cache",
+        action="store_true",
+        help="Use cached market split and stock prices"
+    )
+    args = parser.parse_args()
+
+    EQUITIES, TARGET_FUND_PROPORTION_IN_REGION = get_equities(use_cache=args.use_cache)
+    PORTFOLIO_DATA = get_portfolio_data()
+    TARGET_REGIONAL_SPLIT = get_target_regional_split(use_cache=args.use_cache)
+    current_portfolio = Portfolio([
+        Position(
+            value=item['shares'] * EQUITIES[Ticker[item['ticker']]].share_price,
+            equity=EQUITIES[Ticker[item['ticker']]],
+            target_regional_split=TARGET_REGIONAL_SPLIT,
+            target_fund_proportion_in_region=TARGET_FUND_PROPORTION_IN_REGION
+        )
+        for item in PORTFOLIO_DATA
+    ])
+
     print()
-    print(f"Current value loading: {current_portfolio.value_loading:.2%} ({current_portfolio.target_value_loading:.2%} target)")
-    print(f"Current size loading: {current_portfolio.size_loading:.2%} ({current_portfolio.target_size_loading:.2%} target)")
-    print(f"Current profitability loading: {current_portfolio.profitability_loading:.2%} "
-          f"({current_portfolio.target_profitability_loading:.2%} target)")
+    current_portfolio.display_loadings()
 
     print()
     regional_dist = current_portfolio.regional_distribution()
