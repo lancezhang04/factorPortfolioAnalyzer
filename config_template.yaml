@@ -1,16 +1,16 @@
 current_portfolio:
   - ticker: DFUS
-    value: 729.86
+    shares: 12.0
   - ticker: DFAI
-    value: 316.16
+    shares: 6.0
   - ticker: AVEM
-    value: 164.85
+    shares: 0.0
   - ticker: AVES
-    value: 0.0
+    shares: 4.0
   - ticker: AVUV
-    value: 193.87
+    shares: 3.7
   - ticker: AVDV
-    value: 78.41
+    shares: 2.9
 
 equities:
   DFUS:
@@ -18,7 +18,6 @@ equities:
     size_tilt: -0.02
     profitability_tilt: 0.05
 
-    is_value: false
     region: US
     fractional: false
   DFAI:
@@ -26,16 +25,13 @@ equities:
     size_tilt: -0.18
     profitability_tilt: 0.02
 
-    is_value: false
     region: Developed
     fractional: false
   AVEM:
-    # Need to switch to AVES for more value tilt
     value_tilt: 0.03
     size_tilt: -0.01
     profitability_tilt: 0.19
 
-    is_value: false
     region: Emerging
     fractional: true
   AVES:
@@ -43,15 +39,13 @@ equities:
     size_tilt: 0.32
     profitability_tilt: 0.17
 
-    is_value: true
     region: Emerging
-    fractional: true
+    fractional: false
   AVUV:
     value_tilt: 0.54
     size_tilt: 0.89
     profitability_tilt: 0.28
 
-    is_value: true
     region: US
     fractional: true
   AVDV:
@@ -59,12 +53,10 @@ equities:
     size_tilt: 0.57
     profitability_tilt: 0.28
 
-    is_value: true
     region: Developed
     fractional: true
 
-target_fund_split:
-  US: 0.37
-  Developed: 0.548
-  Emerging: 1.0
-
+target_value_loadings:
+  US: 0.25
+  Developed: 0.2
+  Emerging: 0.2

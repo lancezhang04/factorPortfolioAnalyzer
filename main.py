@@ -13,10 +13,10 @@ current_portfolio = Portfolio([
 
 if __name__ == "__main__":
     print()
-    print(f"Current value tilt: {current_portfolio.value_tilt:.2%} ({current_portfolio.target_value_tilt:.2%} target)")
-    print(f"Current size tilt: {current_portfolio.size_tilt:.2%} ({current_portfolio.target_size_tilt:.2%} target)")
-    print(f"Current profitability tilt: {current_portfolio.profitability_tilt:.2%} "
-          f"({current_portfolio.target_profitability_tilt:.2%} target)")
+    print(f"Current value loading: {current_portfolio.value_loading:.2%} ({current_portfolio.target_value_loading:.2%} target)")
+    print(f"Current size loading: {current_portfolio.size_loading:.2%} ({current_portfolio.target_size_loading:.2%} target)")
+    print(f"Current profitability loading: {current_portfolio.profitability_loading:.2%} "
+          f"({current_portfolio.target_profitability_loading:.2%} target)")
 
     print()
     regional_dist = current_portfolio.regional_distribution()
@@ -29,5 +29,5 @@ if __name__ == "__main__":
     current_portfolio.display()
 
     while True:
-        infusion_value = int(input("\n\nEnter infusion value: "))
+        infusion_value = float(input("\n\nEnter infusion value: "))
         current_portfolio.balance_with_infusion(infusion_value)
