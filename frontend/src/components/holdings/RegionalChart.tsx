@@ -38,7 +38,7 @@ export const PortfolioOverview = ({ distributions, portfolio }: PortfolioOvervie
         {/* Left: Pie chart + legend */}
         <div>
           <div className="flex items-center justify-center gap-6">
-            <div style={{ width: 200, height: 200 }}>
+            <div style={{ width: 280, height: 280 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -46,7 +46,7 @@ export const PortfolioOverview = ({ distributions, portfolio }: PortfolioOvervie
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    outerRadius={85}
+                    outerRadius={120}
                     fill="#8884d8"
                     dataKey="current"
                   >
@@ -85,7 +85,7 @@ export const PortfolioOverview = ({ distributions, portfolio }: PortfolioOvervie
 
         {/* Right: Factor loadings bar chart */}
         <div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={factorData} margin={{ top: 0, right: 10, left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
               <XAxis dataKey="factor" tick={{ fill: '#94a3b8', fontSize: 12 }} />

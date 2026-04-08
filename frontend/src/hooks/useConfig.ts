@@ -46,6 +46,7 @@ export const useUpdateEquityConfig = () => {
       queryClient.invalidateQueries({ queryKey: ['config'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
       queryClient.invalidateQueries({ queryKey: ['targetProportions'] });
+      queryClient.invalidateQueries({ queryKey: ['factorAnalysis'] });
     },
   });
 };
@@ -60,6 +61,7 @@ export const useUpdateTargetValueLoadings = () => {
       queryClient.invalidateQueries({ queryKey: ['config'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
       queryClient.invalidateQueries({ queryKey: ['targetProportions'] });
+      queryClient.invalidateQueries({ queryKey: ['factorAnalysis'] });
     },
   });
 };

@@ -8,7 +8,7 @@ export const Header = () => {
 
   return (
     <div className="bg-slate-800 shadow-lg shadow-slate-900/50">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <div className="px-6 py-4 sm:px-10 lg:px-16">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl text-slate-100">Lance's Factor Portfolio Analyzer</h1>
           <div className="flex items-center gap-4">

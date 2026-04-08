@@ -62,6 +62,9 @@ export const FactorLoadingsTable = ({
           {formatPercent(excessPremium)}
         </span>
       </div>
+      <p className="mt-2 text-xs text-slate-400">
+        *Portfolio premiums are calculated using target factor loadings
+      </p>
     </div>
   );
 };

@@ -19,7 +19,8 @@ export const ReturnComparisonChart = ({ factorAnalysis }: ReturnComparisonChartP
   const realEr = 0.002 / (1 + inflation);
   const benchmarkArithmetic = benchmarkTotalPremium + rf - realEr;
   const benchmarkNominalArithmetic = (1 + benchmarkArithmetic) * (1 + inflation) - 1;
-  const benchmarkGeometric = benchmarkArithmetic - vol * vol / 2;
+  const benchmarkVol = 0.16;
+  const benchmarkGeometric = benchmarkArithmetic - benchmarkVol * benchmarkVol / 2;
   const benchmarkNominalGeometric = (1 + benchmarkGeometric) * (1 + inflation) - 1;
 
   const HIGHLIGHT = '#f59e0b';
@@ -58,11 +59,11 @@ export const ReturnComparisonChart = ({ factorAnalysis }: ReturnComparisonChartP
 
   return (
     <div>
-      <h3 className="text-lg font-medium text-slate-100 mb-2">
+      <h2 className="text-xl font-semibold text-slate-100 mb-2">
         Factor Tilt Advantage
-      </h3>
+      </h2>
       <p className="text-xs text-slate-400 mb-4">
-        Portfolio vs. market-only benchmark (Rm-Rf = 1, all other loadings = 0)
+        Portfolio vs. market-only benchmark (Rm-Rf = 1, all other loadings = 0, vol = 16%)
       </p>
 
       <ResponsiveContainer width="100%" height={240}>
@@ -80,9 +81,9 @@ export const ReturnComparisonChart = ({ factorAnalysis }: ReturnComparisonChartP
           <Tooltip
             contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', color: '#e2e8f0' }}
             labelStyle={{ color: '#e2e8f0' }}
+            itemStyle={{ color: '#e2e8f0' }}
             formatter={(value: number) => `${value.toFixed(2)}%`}
           />
-          <Legend wrapperStyle={{ color: '#e2e8f0', fontSize: 12 }} />
           <Bar dataKey="portfolio" name="Portfolio" radius={[3, 3, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell key={index} fill={entry.highlight ? HIGHLIGHT : '#3b82f6'} />

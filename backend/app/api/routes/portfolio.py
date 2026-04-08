@@ -78,35 +78,35 @@ async def get_factor_analysis(use_cache: bool = Query(False)):
                 loading=service.market_loading,
                 target_loading=service.target_market_loading,
                 premium=factor_premiums.rm_rf,
-                portfolio_premium=factor_premiums.rm_rf * service.market_loading
+                portfolio_premium=factor_premiums.rm_rf * service.target_market_loading
             ),
             FactorLoadingRow(
                 factor="SMB",
                 loading=service.size_loading,
                 target_loading=service.target_size_loading,
                 premium=factor_premiums.smb,
-                portfolio_premium=factor_premiums.smb * service.size_loading
+                portfolio_premium=factor_premiums.smb * service.target_size_loading
             ),
             FactorLoadingRow(
                 factor="HML",
                 loading=service.value_loading,
                 target_loading=service.target_value_loading,
                 premium=factor_premiums.hml,
-                portfolio_premium=factor_premiums.hml * service.value_loading
+                portfolio_premium=factor_premiums.hml * service.target_value_loading
             ),
             FactorLoadingRow(
                 factor="RMW",
                 loading=service.profitability_loading,
                 target_loading=service.target_profitability_loading,
                 premium=factor_premiums.rmw,
-                portfolio_premium=factor_premiums.rmw * service.profitability_loading
+                portfolio_premium=factor_premiums.rmw * service.target_profitability_loading
             ),
             FactorLoadingRow(
                 factor="CMA",
                 loading=service.investment_loading,
                 target_loading=service.target_investment_loading,
                 premium=factor_premiums.cma,
-                portfolio_premium=factor_premiums.cma * service.investment_loading
+                portfolio_premium=factor_premiums.cma * service.target_investment_loading
             ),
         ]
 

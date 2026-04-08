@@ -73,6 +73,26 @@ export const TargetsTab = () => {
 
   const hasLoadingChanges = Object.keys(editedLoadings).length > 0;
 
+  const REGION_COLORS: Record<string, string> = {
+    US: '#3b82f6',
+    Developed: '#10b981',
+    Emerging: '#f59e0b',
+  };
+
+  const REGION_ORDER: string[] = ['US', 'Developed', 'Emerging'];
+
+  // Group tickers by region
+  const tickersByRegion: Record<string, [string, number][]> = {};
+  for (const region of REGION_ORDER) {
+    tickersByRegion[region] = [];
+  }
+  for (const [ticker, proportion] of Object.entries(targetProportions.final_target_proportions)) {
+    const region = config.equities[ticker]?.region ?? '';
+    if (tickersByRegion[region]) {
+      tickersByRegion[region].push([ticker, proportion]);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Final Target Proportions - MOVED TO TOP */}
@@ -83,15 +103,30 @@ export const TargetsTab = () => {
         <p className="text-sm text-slate-300 mb-4">
           These proportions are automatically calculated based on regional split × fund proportion within region
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Object.entries(targetProportions.final_target_proportions).map(([ticker, proportion]) => (
-            <div key={ticker} className="border border-slate-700 rounded-lg p-3">
-              <div className="text-sm font-medium text-slate-200">{ticker}</div>
-              <div className="text-xl font-bold text-slate-100 mt-1">
-                {formatPercent(proportion)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {REGION_ORDER.map((region) => {
+            const color = REGION_COLORS[region] ?? '#334155';
+            return (
+              <div key={region} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+                  <span className="text-xs font-medium" style={{ color }}>{region}</span>
+                </div>
+                {tickersByRegion[region].map(([ticker, proportion]) => (
+                  <div
+                    key={ticker}
+                    className="rounded-lg p-3"
+                    style={{ border: `2px solid ${color}` }}
+                  >
+                    <div className="text-sm font-medium text-slate-200">{ticker}</div>
+                    <div className="text-xl font-bold text-slate-100 mt-1">
+                      {formatPercent(proportion)}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -174,7 +209,7 @@ export const TargetsTab = () => {
             return (
               <div key={ticker} className="border border-slate-700 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-slate-100">{ticker}</h3>
+                  <h3 className="text-lg font-medium text-slate-100" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{ticker}</h3>
                   {hasChanges && (
                     <button
                       onClick={() => handleSaveEquity(ticker)}

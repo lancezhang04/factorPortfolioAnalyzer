@@ -34,7 +34,7 @@ export const FactorsTab = () => {
       <div className="lg:col-span-3 space-y-6">
         <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-slate-100 mb-4">
-            Estimated Portfolio Factor Loadings
+            Estimated Portfolio Factor Premiums
           </h2>
           <FactorLoadingsTable
             loadings={factorAnalysis.loadings}

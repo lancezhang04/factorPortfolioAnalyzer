@@ -10,9 +10,9 @@ export const ExpectedReturnsTable = ({
 }: ExpectedReturnsTableProps) => {
   return (
     <div>
-      <h3 className="text-lg font-medium text-slate-100 mb-4">
+      <h2 className="text-xl font-semibold text-slate-100 mb-4">
         Estimated Expected Returns
-      </h3>
+      </h2>
       <table className="min-w-full divide-y divide-slate-700">
         <thead className="bg-slate-700">
           <tr>
