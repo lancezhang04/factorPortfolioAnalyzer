@@ -12,8 +12,8 @@ interface PortfolioOverviewProps {
 
 const REGION_COLORS: Record<string, string> = {
   US: '#3b82f6',
-  Developed: '#10b981',
-  Emerging: '#f59e0b',
+  Developed: '#f59e0b',
+  Emerging: '#93c5fd',
 };
 
 export const PortfolioOverview = ({ distributions, portfolio }: PortfolioOverviewProps) => {

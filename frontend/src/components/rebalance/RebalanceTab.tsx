@@ -58,19 +58,19 @@ export const RebalanceTab = () => {
           <div className="flex gap-2">
             <button
               onClick={() => handlePreset(500)}
-              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
+              className="px-2 py-0.5 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
             >
               $500
             </button>
             <button
               onClick={() => handlePreset(1000)}
-              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
+              className="px-2 py-0.5 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
             >
               $1,000
             </button>
             <button
               onClick={() => handlePreset(5000)}
-              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
+              className="px-2 py-0.5 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
             >
               $5,000
             </button>
@@ -79,7 +79,7 @@ export const RebalanceTab = () => {
           <button
             onClick={handleCalculate}
             disabled={rebalanceMutation.isPending || !infusion}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+            className="w-full px-2 py-0.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
           >
             {rebalanceMutation.isPending ? 'Calculating...' : 'Calculate Rebalance'}
           </button>

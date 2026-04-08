@@ -53,14 +53,14 @@ export const AssumptionsPanel = () => {
           <div className="flex gap-2">
             <button
               onClick={handleReset}
-              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
+              className="px-2 py-0.5 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
             >
               Reset
             </button>
             <button
               onClick={handleSave}
               disabled={updateMutation.isPending}
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+              className="px-2 py-0.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
             >
               {updateMutation.isPending ? 'Saving...' : 'Save'}
             </button>
