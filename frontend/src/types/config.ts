@@ -29,6 +29,8 @@ export interface Config {
 
 export interface TargetProportions {
   regional_split: Record<Region, number>;
+  market_regional_split: Record<Region, number>;
+  has_custom_split: boolean;
   fund_proportions_in_region: Record<string, number>;
   final_target_proportions: Record<string, number>;
 }

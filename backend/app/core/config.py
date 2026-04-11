@@ -102,6 +102,26 @@ class ConfigManager:
         }
         self.save(self.config_data)
 
+    def get_regional_split_override(self) -> Dict[Region, float] | None:
+        """Get custom regional split override, if set."""
+        override = self.config_data.get("regional_split_override")
+        if override:
+            return {Region[k]: v for k, v in override.items()}
+        return None
+
+    def update_regional_split_override(self, split: Dict[Region, float]) -> None:
+        """Set a custom regional split override."""
+        self.config_data["regional_split_override"] = {
+            region.value: value
+            for region, value in split.items()
+        }
+        self.save(self.config_data)
+
+    def clear_regional_split_override(self) -> None:
+        """Clear the custom regional split override."""
+        self.config_data.pop("regional_split_override", None)
+        self.save(self.config_data)
+
 
 # Global instance
 config_manager = ConfigManager()

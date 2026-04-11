@@ -1,24 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useConfig,
   useTargetProportions,
   useUpdateEquityConfig,
   useUpdateTargetValueLoadings,
+  useUpdateRegionalSplit,
+  useResetRegionalSplit,
 } from '../../hooks/useConfig';
-import { useConfigStore } from '../../store/configStore';
 import { EquityConfig } from '../../types/config';
 import { Region } from '../../types/portfolio';
 import { formatPercent } from '../../utils/formatters';
 
 export const TargetsTab = () => {
-  const { useCache } = useConfigStore();
   const { data: config } = useConfig();
-  const { data: targetProportions } = useTargetProportions(useCache);
+  const { data: targetProportions } = useTargetProportions();
   const updateEquityMutation = useUpdateEquityConfig();
   const updateLoadingsMutation = useUpdateTargetValueLoadings();
+  const updateRegionalSplitMutation = useUpdateRegionalSplit();
+  const resetRegionalSplitMutation = useResetRegionalSplit();
 
   const [editedEquities, setEditedEquities] = useState<Record<string, EquityConfig>>({});
   const [editedLoadings, setEditedLoadings] = useState<Record<Region, number>>({});
+  const [editedSplit, setEditedSplit] = useState<Record<string, number> | null>(null);
 
   if (!config || !targetProportions) {
     return (
@@ -96,7 +99,7 @@ export const TargetsTab = () => {
   return (
     <div className="space-y-6">
       {/* Final Target Proportions - MOVED TO TOP */}
-      <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+      <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-slate-100 mb-4">
           Calculated Target Proportions
         </h2>
@@ -131,7 +134,7 @@ export const TargetsTab = () => {
       </div>
 
       {/* Target Value Loadings Section */}
-      <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+      <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-slate-100">
             Target Value Loadings by Region
@@ -149,13 +152,14 @@ export const TargetsTab = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.entries(config.target_value_loadings).map(([region, loading]) => {
             const currentValue = editedLoadings[region as Region] ?? loading;
+            const regionColor = REGION_COLORS[region] ?? '#3b82f6';
             return (
               <div key={region} className="border border-slate-700 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-3">
                   <label className="text-sm font-medium text-slate-200">
                     {region}
                   </label>
-                  <span className="text-lg font-bold text-blue-400">
+                  <span className="text-lg font-bold" style={{ color: regionColor }}>
                     {currentValue.toFixed(3)}
                   </span>
                 </div>
@@ -166,7 +170,8 @@ export const TargetsTab = () => {
                   step="0.025"
                   value={currentValue}
                   onChange={(e) => handleLoadingChange(region as Region, e.target.value)}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none slider"
+                  style={{ '--slider-color': regionColor } as React.CSSProperties}
                 />
                 <div className="flex justify-between text-xs text-slate-400 mt-2">
                   <span>0.0</span>
@@ -179,25 +184,112 @@ export const TargetsTab = () => {
         </div>
       </div>
 
-      {/* Regional Split Display */}
-      <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-slate-100 mb-4">
-          Current Regional Split (from Market Data)
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {Object.entries(targetProportions.regional_split).map(([region, proportion]) => (
-            <div key={region} className="border border-slate-700 rounded-lg p-4">
-              <div className="text-sm font-medium text-slate-200">{region}</div>
-              <div className="text-2xl font-bold text-slate-100 mt-1">
-                {formatPercent(proportion)}
+      {/* Regional Split */}
+      <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100">
+              Target Regional Distribution
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {targetProportions.has_custom_split || editedSplit
+                ? 'Custom split active'
+                : 'Using global market cap weights'}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {(editedSplit || targetProportions.has_custom_split) && (
+              <button
+                onClick={() => {
+                  resetRegionalSplitMutation.mutate(undefined);
+                  setEditedSplit(null);
+                }}
+                className="px-2 py-0.5 text-sm bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
+              >
+                Reset to Market
+              </button>
+            )}
+            {editedSplit && (
+              <button
+                onClick={() => {
+                  updateRegionalSplitMutation.mutate(editedSplit as Record<Region, number>);
+                  setEditedSplit(null);
+                }}
+                disabled={updateRegionalSplitMutation.isPending}
+                className="px-2 py-0.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                {updateRegionalSplitMutation.isPending ? 'Saving...' : 'Save Split'}
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {REGION_ORDER.map((region, idx) => {
+            const currentSplit = editedSplit ?? targetProportions.regional_split;
+            const value = currentSplit[region as Region] ?? 0;
+            const handleSplitChange = (newValue: number) => {
+              const base = editedSplit ?? { ...targetProportions.regional_split };
+              const oldValue = base[region as Region] ?? 0;
+              const delta = newValue - oldValue;
+
+              // Compensate on the next region (wrapping)
+              const compensateIdx = (idx + 1) % 3;
+              const compensateRegion = REGION_ORDER[compensateIdx];
+              const compensateOld = base[compensateRegion as Region] ?? 0;
+              let compensateNew = compensateOld - delta;
+
+              // Clamp compensating region to [0, 1]
+              if (compensateNew < 0) compensateNew = 0;
+              if (compensateNew > 1) compensateNew = 1;
+
+              // Recalculate actual delta based on clamped value
+              const actualDelta = compensateOld - compensateNew;
+              const actualNew = oldValue + actualDelta;
+
+              const newSplit = { ...base };
+              newSplit[region as Region] = Math.round(actualNew * 1000) / 1000;
+              newSplit[compensateRegion as Region] = Math.round(compensateNew * 1000) / 1000;
+              setEditedSplit(newSplit);
+            };
+
+            const regionColor = REGION_COLORS[region] ?? '#3b82f6';
+            return (
+              <div
+                key={region}
+                className="border border-slate-700 rounded-lg p-4"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-slate-200">{region}</span>
+                  <span className="text-lg font-bold" style={{ color: regionColor }}>
+                    {formatPercent(value)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.025"
+                  value={value}
+                  onChange={(e) => handleSplitChange(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none slider"
+                  style={{ '--slider-color': regionColor } as React.CSSProperties}
+                />
+                <div className="flex justify-between text-xs text-slate-400 mt-2">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>100%</span>
+                </div>
+                <div className="text-xs text-slate-500 mt-1">
+                  Market: {formatPercent(targetProportions.market_regional_split[region as Region] ?? 0)}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Equity Configurations */}
-      <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+      <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-slate-100 mb-4">
           Equity Factor Loadings
         </h2>

@@ -21,7 +21,8 @@ class PortfolioService:
     def __init__(self, use_cache: bool = False):
         self.use_cache = use_cache
         self.equities, self.fund_proportion_in_region = get_equities(use_cache=use_cache)
-        self.target_regional_split = get_global_market_split(use_cache=use_cache)
+        override = config_manager.get_regional_split_override()
+        self.target_regional_split = override if override else get_global_market_split(use_cache=use_cache)
         self.positions: Dict[Ticker, PortfolioPosition] = {}
         self._load_portfolio()
 

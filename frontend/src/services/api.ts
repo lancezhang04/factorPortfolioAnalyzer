@@ -68,6 +68,14 @@ export const configApi = {
     await api.put('/config/target-value-loadings', { target_value_loadings: loadings });
   },
 
+  updateRegionalSplit: async (split: Record<Region, number>): Promise<void> => {
+    await api.put('/config/regional-split', { regional_split: split });
+  },
+
+  resetRegionalSplit: async (): Promise<void> => {
+    await api.delete('/config/regional-split');
+  },
+
   getTargetProportions: async (useCache = false): Promise<TargetProportions> => {
     const { data } = await api.get('/config/target-proportions', {
       params: { use_cache: useCache },

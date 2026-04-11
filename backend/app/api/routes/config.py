@@ -8,6 +8,7 @@ from ...schemas.config import (
     UpdateFactorPremiumsRequest,
     UpdateEquityConfigRequest,
     UpdateTargetValueLoadingsRequest,
+    UpdateRegionalSplitRequest,
     TargetProportionsResponse
 )
 from ...services.equity_service import get_equities
@@ -58,6 +59,26 @@ async def update_target_value_loadings(request: UpdateTargetValueLoadingsRequest
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.put("/regional-split")
+async def update_regional_split(request: UpdateRegionalSplitRequest):
+    """Set a custom regional split override."""
+    try:
+        config_manager.update_regional_split_override(request.regional_split)
+        return {"status": "success", "message": "Regional split override updated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/regional-split")
+async def reset_regional_split():
+    """Clear the custom regional split override, reverting to market data."""
+    try:
+        config_manager.clear_regional_split_override()
+        return {"status": "success", "message": "Regional split override cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/target-proportions", response_model=TargetProportionsResponse)
 async def get_target_proportions(use_cache: bool = False):
     """Get calculated target proportions showing how they're derived from config."""
@@ -65,7 +86,9 @@ async def get_target_proportions(use_cache: bool = False):
         from ...services.market_service import get_global_market_split
 
         equities, fund_proportions = get_equities(use_cache=use_cache)
-        regional_split = get_global_market_split(use_cache=use_cache)
+        market_split = get_global_market_split(use_cache=use_cache)
+        override = config_manager.get_regional_split_override()
+        regional_split = override if override else market_split
 
         # Calculate final target proportions
         final_proportions = {}
@@ -83,6 +106,8 @@ async def get_target_proportions(use_cache: bool = False):
 
         return TargetProportionsResponse(
             regional_split=regional_split,
+            market_regional_split=market_split,
+            has_custom_split=override is not None,
             fund_proportions_in_region=fund_proportions,
             final_target_proportions=final_proportions
         )

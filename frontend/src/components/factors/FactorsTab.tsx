@@ -1,13 +1,11 @@
 import { useFactorAnalysis } from '../../hooks/usePortfolio';
-import { useConfigStore } from '../../store/configStore';
 import { FactorLoadingsTable } from './FactorLoadingsTable';
 import { ExpectedReturnsTable } from './ExpectedReturnsTable';
 import { AssumptionsPanel } from './AssumptionsPanel';
 import { ReturnComparisonChart } from './ReturnComparisonChart';
 
 export const FactorsTab = () => {
-  const { useCache } = useConfigStore();
-  const { data: factorAnalysis, isLoading } = useFactorAnalysis(useCache);
+  const { data: factorAnalysis, isLoading } = useFactorAnalysis();
 
   if (isLoading) {
     return (
@@ -32,7 +30,7 @@ export const FactorsTab = () => {
       </div>
 
       <div className="lg:col-span-3 space-y-6">
-        <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+        <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-slate-100 mb-4">
             Estimated Portfolio Factor Premiums
           </h2>
@@ -42,11 +40,11 @@ export const FactorsTab = () => {
           />
         </div>
 
-        <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+        <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
           <ExpectedReturnsTable expectedReturns={factorAnalysis.expected_returns} />
         </div>
 
-        <div className="bg-slate-800 shadow-lg shadow-slate-900/50 rounded-lg p-6">
+        <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6">
           <ReturnComparisonChart factorAnalysis={factorAnalysis} />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine,
 } from 'recharts';
 import { RegionalDistribution, Portfolio } from '../../types/portfolio';
 import { formatPercent } from '../../utils/formatters';
@@ -95,10 +95,12 @@ export const PortfolioOverview = ({ distributions, portfolio }: PortfolioOvervie
                 labelStyle={{ color: '#e2e8f0' }}
                 itemStyle={{ color: '#e2e8f0' }}
                 formatter={(value: number) => value.toFixed(3)}
+                cursor={{ fill: 'rgba(147, 197, 253, 0.1)' }}
               />
+              <ReferenceLine y={0} stroke="#e2e8f0" strokeWidth={1} />
               <Legend wrapperStyle={{ color: '#e2e8f0', fontSize: 12 }} />
-              <Bar dataKey="current" name="Current" fill="#3b82f6" />
-              <Bar dataKey="target" name="Target" fill="#f59e0b" />
+              <Bar dataKey="current" name="Current" fill="#3b82f6" activeBar={false} />
+              <Bar dataKey="target" name="Target" fill="#f59e0b" activeBar={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>
