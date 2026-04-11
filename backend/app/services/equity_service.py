@@ -83,10 +83,12 @@ def fetch_stock_prices(tickers: list[str]) -> Dict[str, float]:
 
 
 def get_stock_prices(tickers: list[str], use_cache: bool = False) -> Dict[str, float]:
-    """Get stock prices, optionally using cached data."""
+    """Get stock prices, optionally using cached data. Falls back to live fetch if cache missing."""
     if use_cache and STOCK_PRICES_CACHE.exists():
         with open(STOCK_PRICES_CACHE, 'r') as f:
             return json.load(f)
+    elif use_cache:
+        print("  Cache requested but no cache file exists — fetching live data")
 
     prices = fetch_stock_prices(tickers)
 
