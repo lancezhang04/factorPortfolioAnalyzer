@@ -27,6 +27,24 @@ export interface Config {
   target_value_loadings: Record<Region, number>;
 }
 
+export interface PortfolioHoldingItem {
+  ticker: string;
+  shares: number;
+}
+
+export interface PortfolioTemplate {
+  name: string;
+  holdings: PortfolioHoldingItem[];
+  vol: number;
+}
+
+export interface PortfolioTemplatesState {
+  templates: Record<string, PortfolioTemplate>;
+  active_template: string | null;
+  has_override: boolean;
+  vol: number;
+}
+
 export interface TargetProportions {
   regional_split: Record<Region, number>;
   market_regional_split: Record<Region, number>;

@@ -36,6 +36,16 @@ body {
   color: #e2e8f0;
 }
 
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* Fixed grid background matching logo style */
 body::before {
   content: '';

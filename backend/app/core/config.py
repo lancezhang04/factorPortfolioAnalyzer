@@ -1,6 +1,6 @@
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from .models import Region, FactorPremiums, EquityConfig, PortfolioHolding
 
@@ -13,6 +13,8 @@ class ConfigManager:
             config_path = Path(__file__).parent.parent.parent.parent / "config.yaml"
         self.config_path = Path(config_path)
         self._config_data = None
+        self._portfolio_override: Optional[List[Dict[str, Any]]] = None
+        self._vol_override: Optional[float] = None
 
     def load(self) -> Dict[str, Any]:
         """Load configuration from YAML file."""
@@ -40,11 +42,53 @@ class ConfigManager:
         }
 
     def get_portfolio_holdings(self) -> List[PortfolioHolding]:
-        """Get current portfolio holdings."""
+        """Get current portfolio holdings (uses override if set)."""
+        source = self._portfolio_override if self._portfolio_override is not None else self.config_data["current_portfolio"]
         return [
             PortfolioHolding(**item)
-            for item in self.config_data["current_portfolio"]
+            for item in source
         ]
+
+    def get_portfolio_templates(self) -> Dict[str, Any]:
+        """Get available portfolio templates."""
+        lances = self.config_data["current_portfolio"]
+        return {
+            "lances": {
+                "name": "Lance's Portfolio",
+                "holdings": lances,
+                "vol": 0.23,
+            },
+            "custom": {
+                "name": "Custom",
+                "holdings": [],
+                "vol": 0.20,
+            },
+        }
+
+    def set_portfolio_override(self, holdings: List[Dict[str, Any]], vol: Optional[float] = None) -> None:
+        """Set a temporary portfolio override (not persisted to YAML)."""
+        self._portfolio_override = holdings
+        if vol is not None:
+            self._vol_override = vol
+
+    def clear_portfolio_override(self) -> None:
+        """Clear portfolio override, reverting to config.yaml."""
+        self._portfolio_override = None
+        self._vol_override = None
+
+    def get_portfolio_vol(self) -> float:
+        """Get portfolio volatility (override or from factor_premiums.vol)."""
+        if self._vol_override is not None:
+            return self._vol_override
+        return self.get_factor_premiums().vol
+
+    def set_vol_override(self, vol: float) -> None:
+        """Set portfolio volatility override."""
+        self._vol_override = vol
+
+    @property
+    def has_portfolio_override(self) -> bool:
+        return self._portfolio_override is not None
 
     def get_factor_premiums(self) -> FactorPremiums:
         """Get factor premiums."""

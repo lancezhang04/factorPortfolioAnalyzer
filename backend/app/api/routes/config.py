@@ -9,7 +9,9 @@ from ...schemas.config import (
     UpdateEquityConfigRequest,
     UpdateTargetValueLoadingsRequest,
     UpdateRegionalSplitRequest,
-    TargetProportionsResponse
+    TargetProportionsResponse,
+    UpdatePortfolioRequest,
+    PortfolioTemplateResponse,
 )
 from ...services.equity_service import get_equities
 
@@ -75,6 +77,42 @@ async def reset_regional_split():
     try:
         config_manager.clear_regional_split_override()
         return {"status": "success", "message": "Regional split override cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/portfolio-templates", response_model=PortfolioTemplateResponse)
+async def get_portfolio_templates():
+    """Get available portfolio templates and current state."""
+    try:
+        templates = config_manager.get_portfolio_templates()
+        return PortfolioTemplateResponse(
+            templates=templates,
+            active_template=None if config_manager.has_portfolio_override else "lances",
+            has_override=config_manager.has_portfolio_override,
+            vol=config_manager.get_portfolio_vol(),
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/portfolio")
+async def update_portfolio(request: UpdatePortfolioRequest):
+    """Set a custom portfolio (holdings + volatility)."""
+    try:
+        holdings = [{"ticker": h.ticker, "shares": h.shares} for h in request.holdings]
+        config_manager.set_portfolio_override(holdings, request.vol)
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/portfolio")
+async def reset_portfolio():
+    """Clear portfolio override, reverting to config.yaml template."""
+    try:
+        config_manager.clear_portfolio_override()
+        return {"status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

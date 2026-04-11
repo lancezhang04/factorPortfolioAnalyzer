@@ -5,3 +5,4 @@ __pycache__
 .claude
 node_modules
 venv
+/frontend/dist

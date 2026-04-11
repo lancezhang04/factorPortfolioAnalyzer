@@ -5,7 +5,7 @@ import {
   FactorAnalysis,
   RebalanceResult,
 } from '../types/portfolio';
-import { Config, TargetProportions, FactorPremiums, EquityConfig } from '../types/config';
+import { Config, TargetProportions, FactorPremiums, EquityConfig, PortfolioTemplatesState, PortfolioHoldingItem } from '../types/config';
 import { Region } from '../types/portfolio';
 
 const api = axios.create({
@@ -74,6 +74,19 @@ export const configApi = {
 
   resetRegionalSplit: async (): Promise<void> => {
     await api.delete('/config/regional-split');
+  },
+
+  getPortfolioTemplates: async (): Promise<PortfolioTemplatesState> => {
+    const { data } = await api.get('/config/portfolio-templates');
+    return data;
+  },
+
+  updatePortfolio: async (holdings: PortfolioHoldingItem[], vol?: number): Promise<void> => {
+    await api.put('/config/portfolio', { holdings, vol });
+  },
+
+  resetPortfolio: async (): Promise<void> => {
+    await api.delete('/config/portfolio');
   },
 
   getTargetProportions: async (useCache = false): Promise<TargetProportions> => {

@@ -113,11 +113,12 @@ async def get_factor_analysis(use_cache: bool = Query(False)):
         total_portfolio_premium = sum(row.portfolio_premium for row in loadings)
         excess_premium = total_portfolio_premium - factor_premiums.rm_rf
 
-        # Calculate expected returns
+        # Calculate expected returns using portfolio-specific volatility
+        portfolio_vol = config_manager.get_portfolio_vol()
         real_er = 0.002 / (1 + factor_premiums.inflation)
         arithmetic_return = total_portfolio_premium + factor_premiums.rf - real_er
         nominal_arithmetic_return = (1 + arithmetic_return) * (1 + factor_premiums.inflation) - 1
-        geometric_return = arithmetic_return - factor_premiums.vol ** 2 / 2
+        geometric_return = arithmetic_return - portfolio_vol ** 2 / 2
         nominal_geometric_return = (1 + geometric_return) * (1 + factor_premiums.inflation) - 1
 
         expected_returns = ExpectedReturns(
@@ -127,7 +128,7 @@ async def get_factor_analysis(use_cache: bool = Query(False)):
             real_geometric=geometric_return,
             assumptions={
                 "inflation": factor_premiums.inflation,
-                "vol": factor_premiums.vol,
+                "vol": portfolio_vol,
                 "rf": factor_premiums.rf
             }
         )
