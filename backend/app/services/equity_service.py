@@ -2,10 +2,8 @@ import json
 from pathlib import Path
 from typing import Dict
 from collections import defaultdict
-import time
 
-import yfinance as yf
-import pandas as pd
+import requests as _requests
 
 from ..core.models import Ticker, Equity, Region
 from ..core.config import config_manager
@@ -45,39 +43,33 @@ def calculate_core_satellite_split(
     )
 
 
+def _fetch_price_yahoo_chart(ticker: str) -> float | None:
+    """Fetch a single ticker's price via Yahoo Finance's chart API."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    params = {"range": "5d", "interval": "1d"}
+    try:
+        resp = _requests.get(url, headers=headers, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        meta = data["chart"]["result"][0]["meta"]
+        return float(meta["regularMarketPrice"])
+    except Exception:
+        return None
+
+
 def fetch_stock_prices(tickers: list[str]) -> Dict[str, float]:
-    """Fetch stock prices from yfinance using batch download (more reliable on servers)."""
+    """Fetch stock prices via Yahoo Finance chart API (works on cloud servers)."""
     prices = {t: 0.0 for t in tickers}
     print(f"\n=== Fetching prices for {len(tickers)} tickers ===")
 
-    try:
-        # Batch download is more reliable than individual .info calls
-        data = yf.download(tickers, period="5d", progress=False)
-        if not data.empty:
-            # Get the last available closing price for each ticker
-            close = data["Close"]
-            for ticker_str in tickers:
-                try:
-                    col = close[ticker_str] if len(tickers) > 1 else close
-                    last_price = col.dropna().iloc[-1]
-                    prices[ticker_str] = float(last_price)
-                    print(f"  {ticker_str}: ${prices[ticker_str]:.2f}")
-                except Exception as e:
-                    print(f"  {ticker_str}: Error extracting price - {e}")
+    for ticker_str in tickers:
+        price = _fetch_price_yahoo_chart(ticker_str)
+        if price is not None:
+            prices[ticker_str] = price
+            print(f"  {ticker_str}: ${price:.2f}")
         else:
-            print("  WARNING: yf.download returned empty DataFrame")
-    except Exception as e:
-        print(f"  WARNING: Batch download failed ({e}), trying individual fetches")
-        for ticker_str in tickers:
-            try:
-                hist = yf.Ticker(ticker_str).history(period="5d")
-                if not hist.empty:
-                    prices[ticker_str] = float(hist["Close"].iloc[-1])
-                    print(f"  {ticker_str}: ${prices[ticker_str]:.2f}")
-                else:
-                    print(f"  {ticker_str}: No history data")
-            except Exception as e2:
-                print(f"  {ticker_str}: Error - {e2}")
+            print(f"  {ticker_str}: Failed to fetch")
 
     return prices
 
