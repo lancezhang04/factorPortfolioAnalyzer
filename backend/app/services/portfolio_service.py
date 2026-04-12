@@ -35,17 +35,18 @@ class PortfolioService:
         self._load_portfolio()
 
     def _load_portfolio(self):
-        """Load portfolio from config."""
+        """Load portfolio from config, including all tickers with a target proportion."""
         holdings = config_manager.get_portfolio_holdings()
 
-        for holding in holdings:
-            ticker = Ticker[holding.ticker]
-            equity = self.equities[ticker]
-            value = holding.shares * equity.share_price
-            target_proportion = (
-                self.target_regional_split[equity.region] *
-                self.fund_proportion_in_region[holding.ticker]
-            )
+        # Index holdings by ticker for quick lookup
+        holdings_by_ticker = {Ticker[h.ticker]: h for h in holdings}
+
+        # Include any ticker that is held OR has a non-zero target proportion
+        for ticker, equity in self.equities.items():
+            target_proportion = self._all_target_proportions.get(ticker, 0.0)
+            holding = holdings_by_ticker.get(ticker)
+            shares = holding.shares if holding else 0.0
+            value = shares * equity.share_price
 
             if target_proportion > 0.0 or value > 0.0:
                 self.positions[ticker] = PortfolioPosition(equity, value, target_proportion)
@@ -175,11 +176,12 @@ class PortfolioService:
 
         for pos in self.positions.values():
             current_proportion = pos.value / portfolio_value if portfolio_value > 0 else 0.0
+            shares = pos.value / pos.equity.share_price if pos.equity.share_price > 0 else 0.0
             positions.append(Position(
                 ticker=pos.equity.ticker,
                 equity=pos.equity,
                 value=pos.value,
-                shares=pos.value / pos.equity.share_price if pos.equity.share_price > 0 else 0.0,
+                shares=shares,
                 current_proportion=current_proportion,
                 target_proportion=pos.target_proportion,
                 drift=current_proportion - pos.target_proportion

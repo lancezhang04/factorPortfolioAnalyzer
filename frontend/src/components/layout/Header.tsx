@@ -18,10 +18,12 @@ export const Header = () => {
 
   const handleToggleCache = (checked: boolean) => {
     setUseCache(checked);
-    // Invalidate all data queries so they refetch with the new useCache value
-    DATA_QUERY_KEYS.forEach((key) =>
-      queryClient.invalidateQueries({ queryKey: [key] })
-    );
+    // Only refetch when switching to live data — cached results don't change
+    if (!checked) {
+      DATA_QUERY_KEYS.forEach((key) =>
+        queryClient.invalidateQueries({ queryKey: [key] })
+      );
+    }
   };
 
   return (
