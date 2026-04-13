@@ -52,6 +52,7 @@ input[type="tel"], textarea, [contenteditable="true"] {
 
 body {
   margin: 0;
+  overscroll-behavior: none;
   font-family: 'JetBrains Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
