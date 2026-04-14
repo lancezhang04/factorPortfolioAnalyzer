@@ -162,16 +162,15 @@ This means every dollar of infusion is deployed — fractional positions absorb 
 
 ### Portfolio: Maximum Factor Loading
 
-Consider a fully-deployed, factor-maximized portfolio:
+A fully factor-maximized portfolio holds only the three satellite funds — one per region — with no core funds diluting the tilts. Allocations follow the ACWI global market-cap weights (~62% US, ~26% Developed, ~12% Emerging):
 
 | Ticker | Shares | Price | Value | Weight |
 |--------|--------|-------|-------|--------|
-| AVUV | 50 | $114.73 | $5,736.50 | 55.5% |
-| AVDV | 30 | $105.53 | $3,165.90 | 30.7% |
-| AVES | 20 | $63.39 | $1,267.80 | 12.3% |
-| DFUS | 5 | $30.00 | $150.00 | 1.5% |
+| AVUV | 52 | $114.73 | $5,965.96 | 60.4% |
+| AVDV | 25 | $105.53 | $2,638.25 | 26.7% |
+| AVES | 20 | $63.39 | $1,267.80 | 12.8% |
 
-**Total portfolio value: $10,320.20**
+**Total portfolio value: $9,872.01**
 
 ---
 
@@ -184,17 +183,20 @@ Each ETF's factor loadings (from `config.yaml`):
 | AVUV | 1.07 | 0.89 | 0.54 | 0.28 | -0.08 |
 | AVDV | 1.16 | 0.69 | 0.50 | 0.40 | -0.07 |
 | AVES | 1.18 | 0.32 | 0.18 | 0.17 | 0.26 |
-| DFUS | 1.00 | -0.02 | 0.00 | 0.05 | 0.04 |
 
 Weighted average (using portfolio weights above):
 
-$$\beta_{\text{Rm-Rf}} = 0.555 \times 1.07 + 0.307 \times 1.16 + 0.123 \times 1.18 + 0.015 \times 1.00 \approx 1.10$$
+$$\beta_{\text{Rm-Rf}} = 0.604 \times 1.07 + 0.267 \times 1.16 + 0.128 \times 1.18 \approx 1.11$$
 
-$$\beta_{\text{SMB}} = 0.555 \times 0.89 + 0.307 \times 0.69 + 0.123 \times 0.32 + 0.015 \times (-0.02) \approx 0.74$$
+$$\beta_{\text{SMB}} = 0.604 \times 0.89 + 0.267 \times 0.69 + 0.128 \times 0.32 \approx 0.76$$
 
-$$\beta_{\text{HML}} = 0.555 \times 0.54 + 0.307 \times 0.50 + 0.123 \times 0.18 + 0.015 \times 0.00 \approx 0.48$$
+$$\beta_{\text{HML}} = 0.604 \times 0.54 + 0.267 \times 0.50 + 0.128 \times 0.18 \approx 0.48$$
 
-The portfolio carries a **strong size tilt** (SMB ≈ 0.74) and a **significant value tilt** (HML ≈ 0.48), consistent with a small-cap value strategy.
+$$\beta_{\text{RMW}} = 0.604 \times 0.28 + 0.267 \times 0.40 + 0.128 \times 0.17 \approx 0.30$$
+
+$$\beta_{\text{CMA}} = 0.604 \times (-0.08) + 0.267 \times (-0.07) + 0.128 \times 0.26 \approx -0.03$$
+
+The portfolio carries a **strong size tilt** (SMB ≈ 0.76) and a **significant value tilt** (HML ≈ 0.48), consistent with a pure small-cap value strategy across all three regions. Holding only satellite funds with no core dilution maximizes these tilts.
 
 ---
 
@@ -202,17 +204,17 @@ The portfolio carries a **strong size tilt** (SMB ≈ 0.74) and a **significant 
 
 **Total factor premium:**
 
-$$\sum_f \beta_f \cdot \lambda_f = 1.10 \times 0.05 + 0.74 \times 0.01 + 0.48 \times 0.025 + \text{RMW} + \text{CMA}$$
+$$\sum_f \beta_f \cdot \lambda_f = 1.11 \times 0.05 + 0.76 \times 0.01 + 0.48 \times 0.025 + 0.30 \times 0.025 + (-0.03) \times 0.015$$
 
-$$\approx 0.055 + 0.0074 + 0.012 + 0.009 + (-0.001) \approx 8.3\%$$
+$$= 0.0555 + 0.0076 + 0.0120 + 0.0075 - 0.0005 \approx 8.2\%$$
 
 **Real arithmetic return:**
 
-$$E[r_{\text{real, arith}}] = 8.3\% + 0.6\% = 8.9\%$$
+$$E[r_{\text{real, arith}}] = 8.2\% + 0.6\% = 8.8\%$$
 
 **Nominal arithmetic return:**
 
-$$E[r_{\text{nom, arith}}] = (1.089)(1.025) - 1 \approx 11.6\%$$
+$$E[r_{\text{nom, arith}}] = (1.088)(1.025) - 1 \approx 11.5\%$$
 
 **Variance drain** (σ = 23%):
 
@@ -220,36 +222,35 @@ $$\frac{\sigma^2}{2} = \frac{0.23^2}{2} \approx 2.6\%$$
 
 **Real geometric return:**
 
-$$E[r_{\text{real, geo}}] = 8.9\% - 2.6\% = 6.3\%$$
+$$E[r_{\text{real, geo}}] = 8.8\% - 2.6\% = 6.2\%$$
 
 **Nominal geometric return (CAGR):**
 
-$$E[r_{\text{nom, geo}}] = (1.063)(1.025) - 1 \approx 8.9\%$$
+$$E[r_{\text{nom, geo}}] = (1.062)(1.025) - 1 \approx 8.9\%$$
 
 This is the **compound annual growth rate** you'd expect to see in your account over time — the headline number to compare against a simple market index fund.
 
 **Excess premium** (over market):
 
-$$\text{Excess} = 8.3\% - 5.0\% = +3.3\%$$
+$$\text{Excess} = 8.2\% - 5.0\% = +3.2\%$$
 
-The factor tilts are expected to add roughly 3.3 percentage points annually above a plain market portfolio, before accounting for any tracking error or implementation costs.
+The factor tilts are expected to add roughly 3.2 percentage points annually above a plain market portfolio, before accounting for any tracking error or implementation costs.
 
 ---
 
 ### Step 3 — Rebalancing with a $1,000 Infusion
 
-Suppose the portfolio has drifted and you want to add $1,000. After computing target proportions from the ACWI regional weights and the core-satellite blend:
+Suppose you want to add $1,000 to the portfolio. The new total is $10,872.01. Target proportions match the ACWI regional weights (62% / 26% / 12%):
 
-| Ticker | Current | Target | Adjustment |
-|--------|---------|--------|------------|
-| AVUV | $5,736.50 | $6,025.43 | **+$288.93** (+2.52 shares) |
-| AVDV | $3,165.90 | $3,408.07 | **+$242.17** (+2.30 shares) |
-| AVES | $1,267.80 | $1,496.51 | **+$228.71** (+3 shares*) |
-| DFUS | $150.00 | $390.19 | **+$240.19** (+8 shares*) |
+| Ticker | Current | Target | Raw Adj. | Final Adj. |
+|--------|---------|--------|----------|------------|
+| AVUV *(fractional)* | $5,965.96 | $6,740.65 | +$774.69 | **+$756.00** (+6.59 shares) |
+| AVDV *(fractional)* | $2,638.25 | $2,826.72 | +$188.47 | **+$180.62** (+1.71 shares) |
+| AVES *(whole shares)* | $1,267.80 | $1,304.64 | +$36.84 | **+$63.39** (+1 share\*) |
 
-\* AVES and DFUS don't support fractional shares — share counts are rounded to the nearest whole number, and the rounding residual is shifted into AVUV and AVDV.
+\* AVES doesn't support fractional shares. The raw adjustment of $36.84 rounds up to 1 whole share ($63.39), creating a $26.55 overage. That overage is redistributed back out of AVUV and AVDV pro-rata by target weight (70% / 30%), so the total deployed is exactly $1,000.
 
-After redistribution, every dollar of the $1,000 infusion is deployed. The **Whole Share Error** shown in the UI is the residual that gets absorbed by fractional positions — ideally small (< $50).
+After redistribution, every dollar of the infusion is deployed. The **Whole Share Error** shown in the UI is the residual absorbed by fractional positions — ideally small (< $50).
 
 ---
 
