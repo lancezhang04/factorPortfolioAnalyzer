@@ -18,9 +18,9 @@ export const HomePage = () => {
 
       {/* Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 content-start">
           {/* Portfolio Analyzer card */}
-          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4">
+          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4 min-h-[227px]">
             <div>
               <h2 className="text-xl font-semibold text-slate-100 mb-2">
                 Factor Portfolio Analyzer
@@ -43,7 +43,7 @@ export const HomePage = () => {
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg p-6 border-2 border-dashed border-slate-600/50 min-h-[180px] flex items-center justify-center"
+              className="rounded-lg p-6 border-2 border-dashed border-slate-600/50 flex items-center justify-center min-h-[227px]"
             >
               <span className="text-sm text-slate-600">Coming soon</span>
             </div>
