@@ -48,6 +48,60 @@ interface ExerciseRowProps {
   onToggle: () => void;
 }
 
+const ExerciseCard = ({ exercise, isExpanded, onToggle }: ExerciseRowProps) => {
+  const hasVideo = exercise.videoId.length > 0;
+  const embedUrl = hasVideo
+    ? `https://www.youtube.com/embed/${exercise.videoId}${exercise.videoStart ? `?start=${exercise.videoStart}` : ''}`
+    : '';
+
+  return (
+    <div className="bg-slate-800/60 rounded-lg p-3 border border-slate-700/50">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-slate-100">{exercise.name}</div>
+          {exercise.alternative && (
+            <div className="text-[10px] text-slate-500 mt-0.5">Alt: {exercise.alternative}</div>
+          )}
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-sm text-slate-300">{exercise.sets}</div>
+          <div className="text-xs text-slate-500">{exercise.reps}</div>
+        </div>
+      </div>
+
+      <div className="mt-2 pt-2 border-t border-slate-700/40">
+        <TargetSummary targets={exercise.targets} />
+      </div>
+
+      {hasVideo && (
+        <div className="mt-2">
+          <button
+            onClick={onToggle}
+            className={`w-full px-2.5 py-1.5 text-xs rounded-md transition-colors ${
+              isExpanded
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+            }`}
+          >
+            {isExpanded ? 'Hide Demo' : 'Show Demo'}
+          </button>
+          {isExpanded && (
+            <div className="mt-2 aspect-video rounded-lg overflow-hidden">
+              <iframe
+                src={embedUrl}
+                title={exercise.name}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ExerciseRow = ({ exercise, isExpanded, onToggle }: ExerciseRowProps) => {
   const hasVideo = exercise.videoId.length > 0;
   const embedUrl = hasVideo
@@ -121,7 +175,20 @@ export const ExerciseTable = ({ exercises }: { exercises: Exercise[] }) => {
 
   return (
     <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile: stacked cards */}
+      <div className="md:hidden space-y-2 p-3">
+        {exercises.map((ex, i) => (
+          <ExerciseCard
+            key={ex.name}
+            exercise={ex}
+            isExpanded={expandedIndex === i}
+            onToggle={() => setExpandedIndex(expandedIndex === i ? null : i)}
+          />
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block overflow-x-auto overscroll-x-contain">
         <table className="min-w-full divide-y divide-slate-700">
           <thead className="bg-slate-700">
             <tr>
