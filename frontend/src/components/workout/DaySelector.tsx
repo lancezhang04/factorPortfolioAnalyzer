@@ -21,22 +21,6 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
 
   return (
     <div className="relative">
-      {/* Left/right arrows for desktop */}
-      <button
-        onClick={() => onSelect(DAYS[(selectedIndex - 1 + 7) % 7])}
-        className="hidden sm:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full bg-slate-700/80 text-slate-300 hover:bg-slate-600 transition-colors"
-        aria-label="Previous day"
-      >
-        ‹
-      </button>
-      <button
-        onClick={() => onSelect(DAYS[(selectedIndex + 1) % 7])}
-        className="hidden sm:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full bg-slate-700/80 text-slate-300 hover:bg-slate-600 transition-colors"
-        aria-label="Next day"
-      >
-        ›
-      </button>
-
       {/* Day pills — horizontally scrollable on mobile */}
       <div
         ref={containerRef}
