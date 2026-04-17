@@ -246,7 +246,7 @@ export const workoutData: Record<Day, DayWorkout | null> = {
 
   Thursday: {
     day: 'Thursday',
-    label: 'Upper + Zone 2',
+    label: 'Upper Body + Zone 2',
     exercises: [
       {
         name: 'Incline Dumbbell Press',
@@ -319,7 +319,7 @@ export const workoutData: Record<Day, DayWorkout | null> = {
 
   Friday: {
     day: 'Friday',
-    label: 'Lower Posterior Chain',
+    label: 'Lower Body',
     exercises: [
       {
         name: 'Bulgarian Split Squat',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Footer } from '../layout/Footer';
 import { DaySelector } from './DaySelector';
 import { ExerciseTable } from './ExerciseTable';
@@ -16,6 +16,11 @@ export const WorkoutPage = () => {
 
   const dayData = workoutData[selectedDay];
 
+  useEffect(() => {
+    document.title = "Lance's Workouts";
+    return () => { document.title = "Lance's Everything"; };
+  }, []);
+
   return (
     <div style={{ minHeight: '100dvh' }} className="relative z-10 flex flex-col">
       {/* Header */}
@@ -26,9 +31,9 @@ export const WorkoutPage = () => {
               <a href="/">
                 <img src="/lances-logo.svg" alt="Lance's" className="inline-block h-12 sm:h-[3.2rem]" />
               </a>
-              <span className="hidden sm:inline text-3xl">Workout Routine</span>
+              <span className="hidden sm:inline text-3xl">Workouts</span>
             </div>
-            <span className="block sm:hidden text-lg mt-1">Workout Routine</span>
+            <span className="block sm:hidden text-lg mt-1">Workouts</span>
           </h1>
         </div>
 
@@ -69,8 +74,8 @@ export const WorkoutPage = () => {
               </>
             ) : (
               <div className="text-center py-20 text-slate-500">
-                <p className="text-lg">Coming soon</p>
-                <p className="text-sm mt-1">{selectedDay}'s program is still being built.</p>
+                <p className="text-lg">Rest day</p>
+                <p className="text-sm mt-1">Recovery is part of the program.</p>
               </div>
             )}
           </div>
