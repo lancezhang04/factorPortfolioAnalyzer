@@ -20,7 +20,7 @@ export const HomePage = () => {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 content-start">
           {/* Portfolio Analyzer card */}
-          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4 min-h-[227px] border-l-4 border-blue-500/70">
+          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4 min-h-[227px] border-l-4 border-blue-500/70 transition-shadow duration-500 hover:shadow-[0_0_32px_rgba(59,130,246,0.4)]">
             <div>
               <h2 className="text-xl font-semibold text-slate-100 mb-2 flex items-center gap-2">
                 Factor Portfolio Analyzer
@@ -41,7 +41,7 @@ export const HomePage = () => {
           </div>
 
           {/* Workout Routine card */}
-          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4 min-h-[227px] border-l-4 border-amber-500/70">
+          <div className="bg-slate-800/80 shadow-lg shadow-slate-900/50 rounded-lg p-6 flex flex-col gap-4 min-h-[227px] border-l-4 border-amber-500/70 transition-shadow duration-500 hover:shadow-[0_0_32px_rgba(245,158,11,0.4)]">
             <div>
               <h2 className="text-xl font-semibold text-slate-100 mb-2 flex items-center gap-2">
                 Workouts
