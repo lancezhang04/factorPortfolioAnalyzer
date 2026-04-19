@@ -15,9 +15,27 @@ interface DaySelectorProps {
 export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
   const todayIndex = (new Date().getDay() + 6) % 7;
   const containerRef = useRef<HTMLDivElement>(null);
+  // One glow element per LOOPED index — every copy of the selected day gets its own
+  // underglow, so scrolling never teleports a single shared glow between copies.
+  const glowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const selectedIndex = DAYS.indexOf(selected);
   const isJumping = useRef(false);
   const isMounted = useRef(false);
+
+  // Position every mounted glow over its own pill
+  const updateGlows = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    for (let i = 0; i < LOOPED.length; i++) {
+      const glow = glowRefs.current[i];
+      if (!glow) continue;
+      const pill = el.children[i] as HTMLElement | undefined;
+      if (!pill) continue;
+      const pillCenter = pill.offsetLeft + pill.offsetWidth / 2 - el.scrollLeft;
+      glow.style.left = `${pillCenter}px`;
+      glow.style.width = `${pill.offsetWidth}px`;
+    }
+  };
 
   useEffect(() => {
     const el = containerRef.current;
@@ -31,10 +49,11 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
       const elRect = el.getBoundingClientRect();
       const tRect = target.getBoundingClientRect();
       el.scrollLeft += tRect.left - elRect.left - (elRect.width - tRect.width) / 2;
+      requestAnimationFrame(updateGlows);
       return;
     }
 
-    // Scroll to whichever copy of this day is closest to the current viewport center
+    // Scroll whichever copy of this day is closest to the current viewport center
     const viewCenter = el.scrollLeft + el.clientWidth / 2;
     let closest: HTMLElement | null = null;
     let minDist = Infinity;
@@ -45,6 +64,7 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
       const dist = Math.abs(pill.offsetLeft + pill.offsetWidth / 2 - viewCenter);
       if (dist < minDist) { minDist = dist; closest = pill; }
     });
+    requestAnimationFrame(updateGlows);
     (closest as HTMLElement | null)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }, [selected, selectedIndex]);
 
@@ -53,6 +73,7 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
     const el = containerRef.current;
     if (!el) return;
     const onScroll = () => {
+      updateGlows();
       if (isJumping.current) return;
       const oneSet = el.scrollWidth / COPIES;
       if (el.scrollLeft < oneSet) {
@@ -67,17 +88,26 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [selected]);
+
+  // Keep glows in sync when the viewport resizes (pill widths/positions change)
+  useEffect(() => {
+    const onResize = () => updateGlows();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [selected]);
+
+  const glowColor = DAYS[todayIndex] === selected ? 'bg-amber-400/60' : 'bg-blue-500/50';
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden pt-4 sm:pt-0 pb-4">
       {/* Gradient fades at both ends */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-r from-slate-900 to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-l from-slate-900 to-transparent" />
 
       <div
         ref={containerRef}
-        className="flex gap-2 overflow-x-auto pt-1 pb-1 px-1 no-scrollbar"
+        className="relative z-[3] flex gap-2 overflow-x-auto pt-1 pb-1 px-1 no-scrollbar"
       >
         {LOOPED.map((day, i) => {
           const dayIndex = i % 7;
@@ -108,12 +138,21 @@ export const DaySelector = ({ selected, onSelect }: DaySelectorProps) => {
         })}
       </div>
 
-      {/* Underglow — absolutely positioned so it doesn't affect layout, escaping the overflow clip */}
-      <div
-        className={`pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-1 w-14 h-1.5 rounded-full blur-md ${
-          DAYS[todayIndex] === selected ? 'bg-amber-400/70' : 'bg-blue-500/60'
-        }`}
-      />
+      {/* Underglows — one per selected-day copy. Each sits BEHIND the scroll container
+          (z-[1] < z-[3]) so the top of the glow is hidden behind its pill and the
+          bottom glows out below. Position is kept in sync by updateGlows(). */}
+      {LOOPED.map((day, i) => {
+        if (day !== selected) return null;
+        return (
+          <div
+            key={`glow-${i}`}
+            ref={(el) => { glowRefs.current[i] = el; }}
+            className="pointer-events-none absolute -translate-x-1/2 bottom-4 z-[1] w-14"
+          >
+            <div className={`w-full h-8 rounded-full blur-sm ${glowColor}`} />
+          </div>
+        );
+      })}
     </div>
   );
 };
